@@ -8,10 +8,10 @@ import torch
 from torch.utils.data import DataLoader, random_split
 
 from .dataset import NoisyRegressionDataset
-from .model import SimplePerceptron
+from .model import MultiLayerPerceptron
 
 
-def evaluate_and_plot(loader,model, dataset_name, output_folder):
+def evaluate_and_plot(loader, model, dataset_name, output_folder):
     model.eval()
     all_inputs = []
     all_outputs = []
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     test_loader = DataLoader(test_dataset, batch_size=10, shuffle=False)
 
     # Load the best model weights
-    model = SimplePerceptron(input_dim=1, output_dim=1)
+    model = MultiLayerPerceptron(input_dim=1, output_dim=1)
     model.load_state_dict(torch.load(output_folder / "best_model.pth"))
 
     metrics = {}

@@ -9,7 +9,9 @@ from torch.utils.data import Dataset
 
 
 class NoisyRegressionDataset(Dataset):
-    def __init__(self, noise_std=20, size=100, seed=42):
+    def __init__(
+        self, noise_std=20, size=100, seed=42
+    ):  # Constructor del dataset sintético con ruido
         np.random.seed(seed)
         self.x = np.random.uniform(0, 100, size=(size,))
         self.delta = np.random.normal(0, noise_std, size=(size,))
@@ -42,9 +44,13 @@ if __name__ == "__main__":
     output_folder = Path(__file__).parent.parent.parent / "outs" / Path(__file__).parent.name
     output_folder.mkdir(exist_ok=True, parents=True)
 
-    dataset = NoisyRegressionDataset()
+    dataset = NoisyRegressionDataset(size=1000)
+    dataset_ruidoso = NoisyRegressionDataset(noise_std=100, size=1000)
     print(f"Dataset length: {len(dataset)}")
     print(f"First item: {dataset[0]}")
     # save the plot
     dataset.plot(output_folder / "plot_dataset_example.png")
-    dataset.plot(output_folder / "plot_dataset_example.png")
+    dataset_ruidoso.plot(output_folder / "plot_dataset_noisy_example.png")
+
+    longitud_dataset = len(dataset)
+    elemento_dataset = dataset[20]
