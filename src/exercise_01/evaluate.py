@@ -115,7 +115,7 @@ if __name__ == "__main__":
     test_loader = DataLoader(test_dataset, batch_size=10, shuffle=False)
 
     # Load the best model weights
-    model = SimplePerceptron(input_dim=1, output_dim=1)
+    model = MultiLayerPerceptron(input_dim=1, output_dim=1)
     model.load_state_dict(torch.load(output_folder / "best_model.pth"))
 
     metrics = {}

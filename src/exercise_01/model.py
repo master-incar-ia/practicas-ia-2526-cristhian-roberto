@@ -4,7 +4,8 @@ import torch.nn as nn
 class SimplePerceptron(nn.Module):
     def __init__(self, input_dim, output_dim):
         super().__init__()
-        self.fc = nn.Linear(input_dim, output_dim)
+        self.fc1 = nn.Linear(input_dim, output_dim)
+        self.fc2 = nn.Linear(output_dim, output_dim)
         self.activation = nn.Identity()
         self.activation_relu = nn.ReLU()
 
@@ -39,7 +40,6 @@ if __name__ == "__main__":
     x = torch.tensor([1.0])
     print(model1.forward(x))
     pass
-
     # print(model)
     # x = torch.tensor([1.0])
     # print(model(x))

@@ -38,14 +38,15 @@ def train_model(output_folder: Path, device: torch.device):
     )
 
     # Create DataLoaders for the datasets
-    pin_memory = True if device.type == "cuda" else False
+    pin_memory = True if device.type == "cuda" else False #Para optimizar la transferencia a GPU
     train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True, pin_memory=pin_memory)
     val_loader = DataLoader(val_dataset, batch_size=10, shuffle=False, pin_memory=pin_memory)
+
 
     # Define the model, loss function, and optimizer
     input_dim = 1
     output_dim = 1
-    model = SimplePerceptron(input_dim, output_dim).to(device)
+    model = MultiLayerPerceptron(input_dim, output_dim).to(device)
     criterion = nn.MSELoss()
     optimizer = optim.AdamW(model.parameters(), lr=0.0001)
 
@@ -113,6 +114,7 @@ def train_model(output_folder: Path, device: torch.device):
 
     # Save the plot to the outs/ folder
     plt.savefig(output_folder / "loss_plot.png")
+
 
 
 if __name__ == "__main__":

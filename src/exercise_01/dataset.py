@@ -9,7 +9,9 @@ from torch.utils.data import Dataset
 
 
 class NoisyRegressionDataset(Dataset):
-    def __init__(self, noise_std=20, size=100, seed=42):
+    def __init__(
+        self, noise_std=20, size=100, seed=42
+    ):  # Constructor del dataset sintético con ruido
         np.random.seed(seed)
         self.x = np.random.uniform(0, 100, size=(size,))
         self.delta = np.random.normal(0, noise_std, size=(size,))
