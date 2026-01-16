@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 
 from .dataset import NoisyRegressionDataset
+from .model import MultiLayerPerceptron
 from .model import SimplePerceptron
 
 def get_device(force: str = "auto") -> torch.device:
@@ -22,6 +23,7 @@ def get_device(force: str = "auto") -> torch.device:
         return torch.device("cuda")
     # auto
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 def train_model(output_folder: Path, device: torch.device):
     # Create an instance of the dataset
@@ -65,8 +67,6 @@ def train_model(output_folder: Path, device: torch.device):
             outputs = model(inputs_cuda, use_activation=False)
             loss = criterion(outputs, targets_cuda)
 
-
-
             train_loss += loss.item()
 
             # Backward pass and optimization
@@ -97,7 +97,7 @@ def train_model(output_folder: Path, device: torch.device):
 
         if (epoch + 1) % 10 == 0:
             print(
-                f"Epoch [{epoch+1}/{num_epochs}], Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}"
+                f"Epoch [{epoch + 1}/{num_epochs}], Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}"
             )
 
     print(f"Best validation loss: {best_val_loss:.4f}, Model saved to {best_model_path}")
@@ -113,18 +113,16 @@ def train_model(output_folder: Path, device: torch.device):
 
     # Save the plot to the outs/ folder
     plt.savefig(output_folder / "loss_plot.png")
-    plt.savefig(output_folder / "loss_plot.png")
+
 
 if __name__ == "__main__":
     # Create output folder based on file folder
-    output_folder = Path(__file__).parent.parent.parent / "outs" / Path(__file__).parent.name  
+    output_folder = Path(__file__).parent.parent.parent / "outs" / Path(__file__).parent.name
     output_folder.mkdir(exist_ok=True, parents=True)
 
-    device = get_device("auto") # choices are "auto", "cpu", "cuda"
+    device = get_device("auto")  # choices are "auto", "cpu", "cuda"
     print(f"Using device: {device}")
+     # Set the seed for reproducibility
+    torch.manual_seed(42)
     train_model(output_folder, device=device)
 
-    # Set the seed for reproducibility
-    torch.manual_seed(42)
-    
-    

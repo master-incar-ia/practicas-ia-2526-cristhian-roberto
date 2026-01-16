@@ -9,9 +9,10 @@ from torch.utils.data import DataLoader, random_split
 
 from .dataset import NoisyRegressionDataset
 from .model import SimplePerceptron
+from .model import MultiLayerPerceptron
 
 
-def evaluate_and_plot(loader,model, dataset_name, output_folder):
+def evaluate_and_plot(loader, model, dataset_name, output_folder):
     model.eval()
     all_inputs = []
     all_outputs = []
