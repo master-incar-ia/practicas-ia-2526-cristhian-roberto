@@ -8,27 +8,34 @@ import torch
 from torch.utils.data import DataLoader, random_split
 
 from .dataset import NoisyRegressionDataset
-from .model import SimplePerceptron
-from .model import MultiLayerPerceptron
+from .model import MultiLayerPerceptron, SimplePerceptron
 
 
+# Function to evaluate the model and plot results
+# Parameters:
+# loader: DataLoader for the dataset to evaluate.
+# model: The trained model to evaluate.
+# dataset_name: Name of the dataset (e.g., "train", "validation", "test").
+# output_folder: Folder to save the plots.
 def evaluate_and_plot(loader, model, dataset_name, output_folder):
-    model.eval()
+    model.eval()  # Set the model to evaluation mode
     all_inputs = []
     all_outputs = []
     all_targets = []
 
+    # Disable gradient calculation for evaluation
     with torch.no_grad():
         for inputs, targets in loader:
-            outputs = model(inputs)
-            all_inputs.append(inputs.numpy())
-            all_outputs.append(outputs.numpy())
-            all_targets.append(targets.numpy())
+            outputs = model(inputs)  # Forward pass
+            all_inputs.append(inputs.numpy())  # Collect inputs
+            all_outputs.append(outputs.numpy())  # Collect model outputs
+            all_targets.append(targets.numpy())  # Collect true targets
 
-    all_inputs = np.concatenate(all_inputs)
+    all_inputs = np.concatenate(all_inputs)  # Combine all inputs
     all_outputs = np.concatenate(all_outputs)
     all_targets = np.concatenate(all_targets)
 
+    # Create a DataFrame for easier plotting and analysis
     df = pd.DataFrame(
         data=np.array(
             [all_inputs.flatten(), all_targets.flatten(), all_outputs.flatten()]
@@ -52,6 +59,7 @@ def evaluate_and_plot(loader, model, dataset_name, output_folder):
     print(f"Evaluation metrics for {dataset_name} dataset:")
     print(metrics)
 
+    # Plot regression results
     ax = sns.regplot(df, x="y_true", y="y_pred", label=dataset_name)
     ax.set_title(f"Regression plot for {dataset_name} dataset")
     plt.legend()
@@ -96,6 +104,7 @@ def save_metrics_as_picture(metrics, filepath):
 if __name__ == "__main__":
     output_folder = Path(__file__).parent.parent.parent / "outs" / Path(__file__).parent.name
     output_folder.mkdir(exist_ok=True, parents=True)
+
     # Set the seed for reproducibility
     torch.manual_seed(42)
     # Create an instance of the dataset
