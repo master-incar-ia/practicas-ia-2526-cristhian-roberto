@@ -7,9 +7,9 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 
-from .dataset import NoisyRegressionDataset
-from .model import MultiLayerPerceptron
-from .model import SimplePerceptron
+from .dataset import QuadraticNoiseDataset
+from .model import NonlinearRegressor
+
 
 def get_device(force: str = "auto") -> torch.device:
     """Return a torch.device based on the `force` option.
@@ -27,7 +27,7 @@ def get_device(force: str = "auto") -> torch.device:
 
 def train_model(output_folder: Path, device: torch.device):
     # Create an instance of the dataset
-    dataset = NoisyRegressionDataset(size=10000)
+    dataset = QuadraticNoiseDataset(size=10000)
 
     # Split the dataset into train, validation, and test sets
     train_size = int(0.7 * len(dataset))
@@ -38,22 +38,21 @@ def train_model(output_folder: Path, device: torch.device):
     )
 
     # Create DataLoaders for the datasets
-    pin_memory = True if device.type == "cuda" else False #Para optimizar la transferencia a GPU
-    train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True, pin_memory=pin_memory)
-    val_loader = DataLoader(val_dataset, batch_size=10, shuffle=False, pin_memory=pin_memory)
-
+    pin_memory = True if device.type == "cuda" else False  # Para optimizar la transferencia a GPU
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, pin_memory=pin_memory)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, pin_memory=pin_memory)
 
     # Define the model, loss function, and optimizer
     input_dim = 1
     output_dim = 1
-    model = MultiLayerPerceptron(input_dim, output_dim).to(device)
+    model = NonlinearRegressor(input_dim, output_dim).to(device)
     criterion = nn.MSELoss()
-    optimizer = optim.AdamW(model.parameters(), lr=0.0001)
+    optimizer = optim.AdamW(model.parameters(), lr=0.001)
 
     # Training loop with validation and saving best weights
     num_epochs = 100
     best_val_loss = float("inf")
-    best_model_path = output_folder / "best_model.pth"
+    best_model_path = output_folder / "best_model_2.pth"
 
     train_losses = []
     val_losses = []
@@ -116,7 +115,6 @@ def train_model(output_folder: Path, device: torch.device):
     plt.savefig(output_folder / "loss_plot.png")
 
 
-
 if __name__ == "__main__":
     # Create output folder based on file folder
     output_folder = Path(__file__).parent.parent.parent / "outs" / Path(__file__).parent.name
@@ -124,7 +122,6 @@ if __name__ == "__main__":
 
     device = get_device("auto")  # choices are "auto", "cpu", "cuda"
     print(f"Using device: {device}")
-     # Set the seed for reproducibility
+    # Set the seed for reproducibility
     torch.manual_seed(42)
     train_model(output_folder, device=device)
-

@@ -7,9 +7,9 @@ import seaborn as sns
 import torch
 from torch.utils.data import DataLoader, random_split
 
-from .dataset import NoisyRegressionDataset
-from .model import SimplePerceptron
-from .model import MultiLayerPerceptron
+# Importamos las clases definidas anteriormente
+from .dataset import QuadraticNoiseDataset
+from .model import NonlinearRegressor
 
 
 def evaluate_and_plot(loader, model, dataset_name, output_folder):
@@ -29,6 +29,7 @@ def evaluate_and_plot(loader, model, dataset_name, output_folder):
     all_outputs = np.concatenate(all_outputs)
     all_targets = np.concatenate(all_targets)
 
+    # DataFrame para análisis
     df = pd.DataFrame(
         data=np.array(
             [all_inputs.flatten(), all_targets.flatten(), all_outputs.flatten()]
@@ -36,38 +37,52 @@ def evaluate_and_plot(loader, model, dataset_name, output_folder):
         columns=["x", "y_true", "y_pred"],
     )
 
-    # Calculate r2, MAE and MSE
+    # --- CÁLCULO DE MÉTRICAS ---
     r2 = 1 - np.sum((all_targets - all_outputs) ** 2) / np.sum(
         (all_targets - np.mean(all_targets)) ** 2
     )
     mae = np.mean(np.abs(all_targets - all_outputs))
     mse = np.mean((all_targets - all_outputs) ** 2)
+    # RMSE: Más interpretable (en la escala de 'y')
+    rmse = np.sqrt(mse)
+    # Explained Variance Score: Mide qué tanto captura la "forma" de la parábola
+    # ignorando errores de desplazamiento sistemático.
+    var_error = np.var(all_targets - all_outputs)
+    var_true = np.var(all_targets)
+    explained_variance = 1 - (var_error / var_true)
 
     metrics = {
         "R2": r2,
         "MAE": mae,
         "MSE": mse,
+        "RMSE (Mejor)": rmse,
+        "Expl_Variance": explained_variance,
     }
 
     print(f"Evaluation metrics for {dataset_name} dataset:")
-    print(metrics)
+    for k, v in metrics.items():
+        print(f"{k}: {v:.4f}")
 
-    ax = sns.regplot(df, x="y_true", y="y_pred", label=dataset_name)
-    ax.set_title(f"Regression plot for {dataset_name} dataset")
-    plt.legend()
-    plt.savefig(f"{output_folder}/{dataset_name}_regression_plot.png")
+    # --- GRÁFICOS ---
+    # 1. Regresión y_true vs y_pred
+    plt.figure(figsize=(8, 6))
+    sns.regplot(data=df, x="y_true", y="y_pred", scatter_kws={"alpha": 0.3})
+    plt.title(f"Regression Check: {dataset_name}")
+    plt.savefig(output_folder / f"{dataset_name}_regression.png")
     plt.show()
     plt.close()
 
-    # Plot the data points
+    # 2. Ajuste de la curva (X vs Y) - Crucial para la función cuadrática
     plt.figure(figsize=(10, 6))
-    sns.scatterplot(data=df, x="x", y="y_true", label="True")
-    sns.scatterplot(data=df, x="x", y="y_pred", label="Predicted")
-    plt.xlabel("x")
-    plt.ylabel("y")  # Adding y label
-    plt.title(f"Data points for {dataset_name} dataset")
+    # Ordenamos para que la línea roja sea continua
+    df_sorted = df.sort_values(by="x")
+    sns.scatterplot(data=df, x="x", y="y_true", label="Real (con ruido)", alpha=0.4)
+    plt.plot(
+        df_sorted["x"], df_sorted["y_pred"], color="red", label="Predicción (Curva)", linewidth=2.5
+    )
+    plt.title(f"Curva de Ajuste Cuadrático - {dataset_name}")
     plt.legend()
-    plt.savefig(f"{output_folder}/{dataset_name}_data_points_plot.png")
+    plt.savefig(output_folder / f"{dataset_name}_curve_fit.png")
     plt.show()
     plt.close()
 
@@ -85,12 +100,13 @@ def save_metrics_as_picture(metrics, filepath):
     fig, ax = plt.subplots(figsize=(8, 2))  # set size frame
     ax.axis("tight")
     ax.axis("off")
-    table = ax.table(
+    ax.table(
         cellText=df.values, colLabels=df.columns, rowLabels=df.index, cellLoc="center", loc="center"
     )
 
     # Save the plot as an image
     plt.savefig(filepath)
+    plt.close()
 
 
 if __name__ == "__main__":
@@ -99,7 +115,7 @@ if __name__ == "__main__":
     # Set the seed for reproducibility
     torch.manual_seed(42)
     # Create an instance of the dataset
-    dataset = NoisyRegressionDataset(size=10000)
+    dataset = QuadraticNoiseDataset(size=2000)
 
     # Split the dataset into train, validation, and test sets
     train_size = int(0.7 * len(dataset))
@@ -115,8 +131,8 @@ if __name__ == "__main__":
     test_loader = DataLoader(test_dataset, batch_size=10, shuffle=False)
 
     # Load the best model weights
-    model = MultiLayerPerceptron(input_dim=1, output_dim=1)
-    model.load_state_dict(torch.load(output_folder / "best_model.pth"))
+    model = NonlinearRegressor(input_dim=1, output_dim=1)
+    model.load_state_dict(torch.load(output_folder / "best_model_2.pth"))
 
     metrics = {}
     # Evaluate and plot for train, validation and test datasets
@@ -128,6 +144,7 @@ if __name__ == "__main__":
     pd.DataFrame(metrics).to_csv(output_folder / "metrics.csv")
 
     # Save the metrics as an image
-    save_metrics_as_picture(metrics, output_folder / "metrics.png")
+    save_metrics_as_picture(metrics, output_folder / "final_metrics.png")
 
-    print("Evaluation complete!")
+    print(f"Evaluación completada. Resultados en: {output_folder}")
+    print("Métricas finales guardadas en 'final_metrics.png' y 'metrics.csv'")

@@ -8,10 +8,10 @@ import torch
 from torch.utils.data import Dataset
 
 
-class NoisyRegressionDataset(Dataset):
-    def __init__(self, noise_std=20, size=100, seed=42):
+class QuadraticNoiseDataset(Dataset):
+    def __init__(self, noise_std=20, size=500, seed=42):
         np.random.seed(seed)
-        self.x = np.random.uniform(0, 100, size=(size,))
+        self.x = np.random.uniform(-10, 10, size=(size,))
         self.delta = np.random.normal(0, noise_std, size=(size,))
         self.y = -3 * self.x * self.x + 5 * self.x + self.delta
 
@@ -25,7 +25,7 @@ class NoisyRegressionDataset(Dataset):
 
     def plot(self, filepath):
         ax = sns.scatterplot(self.df, x="x", y="y")
-        ax.set_title("Synthetic noisy data of y=5*x+2")
+        ax.set_title("Synthetic noisy data of y=-3*x^2+5*x")
         plt.savefig(filepath)
         plt.show()
 
@@ -39,12 +39,11 @@ class NoisyRegressionDataset(Dataset):
 
 
 if __name__ == "__main__":
-    output_folder = Path(__file__).parent.parent.parent / "outs" / Path(__file__).parent.name 
+    output_folder = Path(__file__).parent.parent.parent / "outs" / Path(__file__).parent.name
     output_folder.mkdir(exist_ok=True, parents=True)
 
-    dataset = NoisyRegressionDataset()
+    dataset = QuadraticNoiseDataset()
     print(f"Dataset length: {len(dataset)}")
     print(f"First item: {dataset[0]}")
     # save the plot
-    dataset.plot(output_folder / "plot_dataset_example.png")
     dataset.plot(output_folder / "plot_dataset_example.png")
