@@ -46,6 +46,7 @@
             "module": "src.exercise_01.evaluate",
             "console": "integratedTerminal"
         },
+<<<<<<< HEAD
             {
             "name": "Python: Module",
             "type": "debugpy",
@@ -58,6 +59,34 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
+=======
+        {
+            "name": "exercise_02.dataset",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.exercise_02.dataset",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "exercise_02.train",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.exercise_02.train",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "exercise_02.model",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.exercise_02.model",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "exercise_02.evaluate",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.exercise_02.evaluate",
+>>>>>>> cf21aaaf7a33a833979159b5e9c169ae4a9d3b50
             "console": "integratedTerminal"
         },
         {
@@ -88,6 +117,9 @@
             "module": "src.exercise_03.evaluate",
             "console": "integratedTerminal"
         },
+<<<<<<< HEAD
         
+=======
+>>>>>>> cf21aaaf7a33a833979159b5e9c169ae4a9d3b50
          ]
 }

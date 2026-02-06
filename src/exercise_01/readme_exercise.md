@@ -1,4 +1,3 @@
-
 # Exercise 1: Learn a linear function with PyTorch
 
 ## Objective
@@ -9,10 +8,10 @@ The objective of this exercise is to model an unknown function by a machine lear
 
 ## Task Formalization
 
-The task in hand can be formalized in two steps. First, we will define what we are tring to achieve as clearlly as possible. Second, we will define the approach we are taking to solve it.
-
+The task in hand can be formalized in two steps. First, we will define what we are trying to achieve as clearly as possible. Second, we will define the approach we are taking to solve it.
 
 ### What we are trying to do (Inference)
+
 There is an unknown function $f$ for which we have a bunch of data about certain input $x$ and its corresponding output $y$.
 
 $$
@@ -31,8 +30,9 @@ Graphically expressed:
 graph TD
     A((x)) --> B["f(W,x)"]
     B --> C((y))
-    
+  
 ```
+
 The input vector has size [bs x 1]. The weight matrix has size [1 x 1]
 
 ### How we are going to do it (Training)
@@ -46,7 +46,7 @@ graph TD
     C((y'))
     M["f(W,x)"]
     L(Loss)
-    
+  
     M --> C
     C --> L
     B --> L
@@ -54,7 +54,6 @@ graph TD
     L --> W
     W --> M
 ```
-
 
 ## Evaluation metrics
 
@@ -91,7 +90,6 @@ A simple perceptron architecture is used as a baseline. This architecture has tw
 
 *Task for the student: Explain why this model may have been chosen. Why a simple perceptron instead of other alternatives? Explain advantages and disadvantages. Is it going to generalize well to unseen data? Which other alternative could be used?*
 
-
 ### Last layer activation
 
 As it is a regression task with no lower and upper limits, the last layer activation is set to Identity function.
@@ -114,7 +112,6 @@ Learning rate is set to 0.0001
 
 *Task for the student: Make changes until the model works. Explain all the changes you have made to the training hyperparameters and why.*
 
-
 ### Discussion of the training process
 
 We can appreciate that the model converges and no overfitting happens.
@@ -133,7 +130,7 @@ We can appreciate regression plots for train, validation and test sets.
 
 ![image](../../outs/exercise_01/test_regression_plot.png)
 
-Metrics for each dataset is depicted: 
+Metrics for each dataset is depicted:
 
 ![image](../../outs/exercise_01/metrics.png)
 
@@ -145,16 +142,13 @@ Example for train set:
 
 ![image](../../outs/exercise_01/train_data_points_plot.png)
 
-
 Example for validation set:
 
 ![image](../../outs/exercise_01/validation_data_points_plot.png)
 
-
 Example for test set:
 
 ![image](../../outs/exercise_01/test_data_points_plot.png)
-
 
 ### Discussion of the results
 
@@ -165,7 +159,6 @@ Example for test set:
 *Task for the student: Describe the process you have followed to improve the model and the evolution of performance of the model during the process.*
 
 *You can include a table stating the chanched parameters and the obtained results after the process.*
-
 
 ## Additional Questions
 
@@ -182,9 +175,3 @@ Example for test set:
 ### What happens if you change the learning rate?
 
 ### Please, reduce the data points of the dataset to 10 and create 2 layers / 20 neurons each. In this case, how can you reduce the overfitting problem?
-
-
-
-
-
-
