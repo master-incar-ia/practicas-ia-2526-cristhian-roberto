@@ -13,9 +13,12 @@ from torch.utils.data import Dataset
 class NoisyRegressionDataset(Dataset):
     def __init__(self, noise_std=20, size=100, seed=42):
         np.random.seed(seed)
-        self.x = np.random.uniform(0, 100, size=(size,))
+        x_raw = np.random.uniform(0, 100, size=(size,))          
+        self.x = (x_raw - 50.0) / 50.0                           
         self.delta = np.random.normal(0, noise_std, size=(size,))
-        self.y = 100 * np.sin(8 * numpy.pi * self.x / 100) + 2 + self.delta
+        y_raw = 100 * np.sin(8 * np.pi * x_raw / 100) + 2 + self.delta
+        self.y = y_raw / 100.0  
+        
         # Create a DataFrame for visualization
         df = pd.DataFrame(data=np.array([self.x, self.y]).transpose(), columns=["x", "y"])
         self.df = df
