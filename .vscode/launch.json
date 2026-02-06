@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
         {
             "name": "Python: Module",
             "type": "debugpy",
@@ -46,20 +47,6 @@
             "module": "src.exercise_01.evaluate",
             "console": "integratedTerminal"
         },
-<<<<<<< HEAD
-            {
-            "name": "Python: Module",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "src.exercise_03.${fileBasenameNoExtension}",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Python Debugger: Current File",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${file}",
-=======
         {
             "name": "exercise_02.dataset",
             "type": "debugpy",
@@ -86,7 +73,6 @@
             "type": "debugpy",
             "request": "launch",
             "module": "src.exercise_02.evaluate",
->>>>>>> cf21aaaf7a33a833979159b5e9c169ae4a9d3b50
             "console": "integratedTerminal"
         },
         {
@@ -117,9 +103,5 @@
             "module": "src.exercise_03.evaluate",
             "console": "integratedTerminal"
         },
-<<<<<<< HEAD
-        
-=======
->>>>>>> cf21aaaf7a33a833979159b5e9c169ae4a9d3b50
          ]
 }
