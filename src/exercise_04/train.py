@@ -46,7 +46,7 @@ def train_model(output_folder: Path, device: torch.device):
     input_dim = 1
     output_dim = 1
     hidden_dim = 64
-    model = NonlinearRegressor(input_dim, hidden_dim, output_dim).to(device)
+    model = NonlinearRegressor(input_dim, hidden_dim ,output_dim).to(device)
     criterion = nn.MSELoss()
     optimizer = optim.AdamW(model.parameters(), lr=0.001)
 

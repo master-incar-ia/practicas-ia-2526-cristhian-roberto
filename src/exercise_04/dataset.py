@@ -48,3 +48,7 @@ if __name__ == "__main__":
     print(f"Dataset length: {len(dataset_train)}")
     print(f"First item: {dataset_train[0]}")
     dataset_train.plot(output_folder / "plot_dataset_example.png")
+
+
+# revisar para uso de función one_hot_encode en el modelo, ya que el dataset es de clasificación y no de regresión. Además, en el evaluate.py quiere que se muestre la matriz de confusión y las métricas de clasificación, pero el dataset es de regresión, no clasificación. Deberíamos cambiar el dataset a uno de clasificación. 
+# en el evaluate.py quiere que se muestre la matriz de confusión y las métricas de clasificación, pero el dataset es de regresión, no clasificación. Deberíamos cambiar el dataset a uno de clasificación.

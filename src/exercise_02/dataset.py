@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 
 
 class QuadraticNoiseDataset(Dataset):
-    def __init__(self, noise_std=20, size=500, seed=42):
+    def __init__(self, noise_std=20, size=550, seed=42):
         np.random.seed(seed)
         self.x = np.random.uniform(-10, 10, size=(size,))
         self.delta = np.random.normal(0, noise_std, size=(size,))
