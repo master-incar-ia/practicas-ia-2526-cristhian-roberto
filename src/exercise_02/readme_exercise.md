@@ -48,7 +48,7 @@ El dataset es sintético y consiste en:
 3. **Reshaping:** Se asegura que las dimensiones sean (N, 1) para que sean compatibles con las capas lineales de PyTorch.
 4. **Split:** Se divide el dataset en Train **(70%)**, Validation **(15%)** yTest **(15%)**.
 
-<pre class="vditor-reset" placeholder="" contenteditable="true" spellcheck="false"><p data-block="0"><img src="https://file+.vscode-resource.vscode-cdn.net/c%3A/Tecnicas%20Avanzadas%20de%20IA/Practicas_TAIA/practicas-ia-2526-cristhian-roberto/outs/exercise_02/loss_plot.png" alt="image"/></p></pre>
+   ![image](https://file+.vscode-resource.vscode-cdn.net/c%3A/Tecnicas%20Avanzadas%20de%20IA/Practicas_TAIA/practicas-ia-2526-cristhian-roberto/outs/exercise_02/plot_dataset_example.png)
 
 ### Data augmentation
 
