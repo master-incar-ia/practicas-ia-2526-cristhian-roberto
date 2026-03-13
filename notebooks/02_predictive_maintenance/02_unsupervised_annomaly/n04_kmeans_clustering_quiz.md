@@ -20,12 +20,16 @@
 - c) Semi-supervised learning
 - d) Reinforcement learning
 
+Answer: Es aprendizaje no supervisado debido a que se pasa un dataset sin elementos etiquetados para que descubra caracteristicas que asocien grupos (clusters) que describan a cierto tipo de elementos del dataset.
+
 **Question 2** (4 points): What is the main objective of the K-means algorithm?
 
 - a) To classify data points into predefined categories
 - **b) To minimize the sum of squared distances from data points to cluster centroids**
 - c) To maximize the distance between different clusters
 - d) To predict future values based on historical data
+
+Answer: El objetivo matemático del algoritmo K-means es minimizar la «suma de cuadrados intraclúster»  o inercia. Su objetivo es hacer que los clústeres sean lo más compactos posible minimizando la distancia entre cada punto y el centro (centroide) del clúster al que pertenece.
 
 **Question 3** (4 points): In the iris dataset tutorial, how many features were used for clustering?
 
@@ -41,12 +45,16 @@
 - c) Update centroids by calculating the mean of assigned points
 - **d) Remove outliers from the dataset**
 
+Answer: Esto no es un paso del algoritmo en sí. Aunque a menudo se recomienda eliminar los valores atípicos como paso de preprocesamiento antes de ejecutar el algoritmo K-means, el algoritmo K-means en sí mismo no identifica ni elimina los valores atípicos; simplemente intenta incluirlos en el clúster más cercano, lo que puede sesgar los resultados.
+
 **Question 5** (4 points): What does the 'k' parameter represent in K-means clustering?
 
 - a) The number of features in the dataset
 - b) The number of iterations to run
 - **c) The number of clusters to create**
 - d) The number of data points in each cluster
+
+Answer: la «K» se refiere precisamente al número de clusters distintos y que no se superponen en los que se desea que el algoritmo divida el conjunto de datos. Se trata de un hiperparámetro que el usuario debe especificar antes de ejecutar el algoritmo.
 
 ---
 
@@ -60,6 +68,8 @@
 - **b) It ensures all features contribute equally to distance calculations**
 - c) It reduces the memory requirements
 - d) It automatically determines the optimal number of clusters
+
+Answer: Este método se basa en gran medida en el cálculo de distancias (normalmente la distancia euclidiana) entre los puntos de datos y los centroides de los clústeres. Si el conjunto de datos tiene una característica que se mide en miles (como el salario) y otra que se mide en decimales (como una proporción de 0 a 1), la característica con los números más grandes dominará por completo el cálculo de la distancia. Escalar o estandarizar las características las pone a todas en igualdad de condiciones, asegurando que el algoritmo considere cada característica de manera proporcional.
 
 **Question 7** (5 points): In the tutorial, what was the effect of standardization on the iris dataset features?
 
@@ -103,6 +113,8 @@
 - **c) When clusters have very different sizes**
 - d) When you need fast processing
 
+Answer: 
+
 **Question 12** (5 points): In manufacturing quality control, K-means clustering could help with:
 
 - a) Automatically setting quality thresholds
@@ -110,11 +122,11 @@
 - c) Identifying defect patterns
 - **d) All of the above**
 
-~~**Question 13** (5 points): In the tutorial's 3D visualization, what was the purpose of using PCA?~~
+**Question 13** (5 points): In the tutorial's 3D visualization, what was the purpose of using PCA?
 
 - a) To reduce the dataset size
 - b) To speed up the clustering algorithm
-- c) To visualize high-dimensional data in 3D space
+- **c) To visualize high-dimensional data in 3D space**
 - d) To improve clustering accuracy
 
 ---
