@@ -3,7 +3,7 @@
 ## Student Information
 
 - **Name**: Roberto del Horno y Cristhian Pinzón
-- **Date**: 06/03/2026
+- **Date**: 13/03/2026
 - **Course**: Applications of AI for Industrial Control
 - **Tutorial**: K-means Clustering for Industrial Applications
 
@@ -103,12 +103,12 @@
 - **c) When clusters have very different sizes**
 - d) When you need fast processing
 
-~~**Question 12** (5 points): In manufacturing quality control, K-means clustering could help with:~~
+**Question 12** (5 points): In manufacturing quality control, K-means clustering could help with:
 
 - a) Automatically setting quality thresholds
-- **b) Grouping products by quality characteristics**
+- b) Grouping products by quality characteristics
 - c) Identifying defect patterns
-- **d) All of the above ???**
+- **d) All of the above**
 
 ~~**Question 13** (5 points): In the tutorial's 3D visualization, what was the purpose of using PCA?~~
 
