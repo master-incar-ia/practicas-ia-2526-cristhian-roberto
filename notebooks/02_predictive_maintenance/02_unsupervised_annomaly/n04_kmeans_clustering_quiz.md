@@ -2,8 +2,8 @@
 
 ## Student Information
 
-- **Name**: ________________________________
-- **Date**: ________________________________
+- **Name**: Roberto del Horno y Cristhian Pinzón
+- **Date**: 06/03/2026
 - **Course**: Applications of AI for Industrial Control
 - **Tutorial**: K-means Clustering for Industrial Applications
 
