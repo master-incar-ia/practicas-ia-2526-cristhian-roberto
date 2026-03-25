@@ -12,18 +12,18 @@ La tarea consiste en un problema de clasificación de imágenes de 10 clases. Da
 
 ### Task Formalization (Inference)
 
-Para una nueva imagen, el modelo genera un vector de 10 logits. La clase  se obtiene aplicando argmax, es decir, el índice con el logit más alto.
+Para una nueva imagen, el modelo genera un vector de 10 clases y elige un índice con la clase más alta.
 
 La inferencia consiste en un paso hacia adelante (feed-forward):
 
 * **Input Flattening:** La imagen de 32x32x3 se "aplana" a un vector de 3072 dimensiones.
 * **Capas Ocultas:** Tres capas densas con 1024, 512 y 256 neuronas respectivamente.
 * **Activación y Normalización:** Se usa ReLU para introducir no linealidad y Batch Normalization para estabilizar las activaciones.
-* **Salida:** Una capa lineal de 10 neuronas que devuelve logits (puntuaciones brutas por clase).
+* **Salida:** Una capa lineal de 10 neuronas que devuelve puntuaciones brutas por clase.
 
 ### Task Formalization (Training)
 
-El modelo está entrenado para minimizar la pérdida de entropía cruzada entre sus logits de salida y las etiquetas de clase de referencia (proporcionadas como números enteros). El entrenamiento implica pasadas hacia adelante y hacia atrás, optimización mediante descenso de gradiente y técnicas de regularización (abandono, decaimiento de peso, normalización por lotes) para mejorar la generalización.
+El modelo está entrenado para minimizar la pérdida de entropía cruzada entre sus puntuaciones brutas de salida y las etiquetas de clase de referencia (proporcionadas como números enteros). El entrenamiento implica pasadas hacia adelante y hacia atrás, optimización mediante descenso de gradiente y técnicas de regularización (abandono, decaimiento de peso, normalización por lotes) para mejorar la generalización.
 
 El entrenamiento es supervisado utilizando:
 
@@ -67,13 +67,9 @@ No se aplica ningún aumento a las imágenes de validación o prueba; solo se so
 
 ## Model Considerations
 
-Write your answer here
-
 ### Suitable Loss Functions
 
-Para problemas de clasificación multiclase con clases mutuamente excluyentes (como el que aplica para este caso), La función Loss estándar es la entropía cruzada (`CrossEntropyLoss`). Combina una activación softmax y la probabilidad logarítmica negativa de la clase verdadera.
-
-Otra opción puede ser NLLLoss, aunque esta requiere una implementación manual de la función de activación Softmax.
+Para problemas de clasificación multiclase con clases mutuamente excluyentes (como el que aplica para este caso), la función Loss estándar es la entropía cruzada (`CrossEntropyLoss`).
 
 ### Selected Loss Function
 
@@ -81,7 +77,7 @@ Para esta ocasión se hizo uso de `nn.CrossEntropyLoss()` de PyTorch. Espera log
 
 ### Possible architectures
 
-Para este primer intento se ha elegido una red totalmente conectada (perceptrón multicapa). Esta red hace uso de una capa flatten al principio con la entrada de 3×32×32 en un vector de 3072 dimensiones y la pasa a través de 3 conjuntos de capas distribuidas con la siguiente disposición:
+Se ha elegido una red Fully Connected (perceptrón multicapa). Esta red hace uso de una capa flatten al principio con la entrada de 3×32×32 en un vector de 3072 dimensiones y la pasa a través de 3 conjuntos de capas distribuidas con la siguiente disposición:
 
 * nn.Linear(input_dim, hidden_dim)
 * nn.BatchNorm1d(hidden_dim): se añade después de cada capa lineal oculta (antes de ReLU) para estabilizar el entrenamiento y acelerar la convergencia.
@@ -90,7 +86,7 @@ Para este primer intento se ha elegido una red totalmente conectada (perceptrón
 
 ### Last layer activation
 
-En la última capa se implementa una `nn.Linear (sin activación)`. Esto es porque `CrossEntropyLoss` espera los valores brutos (logits). Además de considerar que al hacer uso de la función `CrossEntropyLoss` en PyTorch, lleva de forma implicita al final la implementación de Softmax. Por esta razón, se debe implementar la capa lineal al final para cumplir con la condición enunciada al principio de este apartado.
+En la última capa se implementa una `nn.Linear (sin activación)`. Esto es porque `CrossEntropyLoss` espera los valores brutos (logits). Además de considerar que al hacer uso de la función `CrossEntropyLoss` en PyTorch, lleva de forma implicita al final la implementación de Softmax. Por esta razón, se debe implementar la capa lineal al final.
 
 ### Other Considerations
 
@@ -112,27 +108,31 @@ En la última capa se implementa una `nn.Linear (sin activación)`. Esto es porq
 * **Learning Rate:** 0.001 (inicial)
 * **Weight decay:** 0.01
 * **Scheduler:** ReduceLROnPlateau (mode='max', factor=0.5, patience=3)
-* **Epochs:** 20 y 60 (comparativa)
+* **Epochs:** 60 y 200 (comparativa)
 
 ### Loss function graph
 
-A continuación se muestran las curvas de pérdida de entrenamiento/validación y precisión de validación para 20 y 60 épocas.
-
-**20 epochs**
-
-![Loss_Accuracy_plot_20_epochs](../../outs/exercise_05/metrics_plot_20_epochs.png "Loss &amp; Accuracy plots for 20 epochs")
+A continuación se muestran las curvas de pérdida de entrenamiento/validación y precisión de validación para 60 y 200 épocas.
 
 **60 epochs**
 
-![Loss_Accuracy_plot_60_epochs](../../outs/exercise_05/metrics_plot_60_epochs.png)
+![Loss_Accuracy_plot_60_epochs](../../outs/exercise_05/metrics_plot_60_epochs.png "Loss &amp; Accuracy plots for 60 epochs")
+
+**200 epochs**
+
+![Loss_Accuracy_plot_200_epochs](../../outs/exercise_05/metrics_plot_200_epochs.png "Loss &amp; Accuracy plots for 200 epochs")
 
 ### Discussion of the training process
 
-A 20 épocas, la pérdida descendía de forma constante pero no llegaba a estabilizarse. La precisión de la validación alcanza ~54 % en la época 20. No hay signos claros de sobreajuste grave.
+A 60 épocas, la pérdida desciende de forma constante pero no llega a estabilizarse. La precisión de la validación alcanza ~59 % en la época 60. No hay signos claros de sobreajuste grave.
 
-Al subir a 60 épocas, se observa en la gráfica de **Loss** (60 épocas) pequeños zig-zags cerca de la época 40-50; esto es el efecto del `Scheduler` reduciendo el Learning Ratio, permitiendo que el modelo ajuste los pesos de manera fina al final del proceso. La pérdida de validación se mantiene baja y no aumenta, lo que indica que el overfitting está bien controlado por la regularización (`dropout`, `ReduceLROnPlateau`) y la normalización por lotes (`BatchNorm1d`).
+Alrededor de la época 45-50 se observa un escalón brusco hacia abajo en la Loss (y un salto hacia arriba en el Accuracy), demostrando que el  `ReduceLROnPlateau` funciona al reducir la tasa de aprendizaje cuando el modelo se estanca.
 
-La precisión final de la validación es de alrededor del 61.6 % (como se ve en los resultados de la prueba), lo cual es razonable para una red totalmente conectada en CIFAR-10 (la referencia típica de MLP es de ~55-60 %).
+A partir de la época 75-80, las curvas se vuelven completamente planas. El Accuracy de validación oscila en una franja muy estrecha entre el 61% y el 62.5%.
+
+Algo a destacar es que la pérdida de validación (`Val Loss`) nunca se dispara por encima de la de entrenamiento (`Train Loss`). Las técnicas de regularización (Dropout, BatchNorm y Data Augmentation) fueron tan efectivas que impidieron el sobreajuste.
+
+Al extender el entrenamiento a 200 épocas, observamos un comportamiento de saturación del modelo donde se puede evidenciar que El problema con este modelo comparado con uno CNN es con respecto al sesgo (underfitting relativo), la arquitectura Fully Connected no tiene la capacidad de aprender patrones más complejos.
 
 ## Evaluation
 
@@ -188,48 +188,49 @@ Al examinar **precision**, **recall** y **F1-score** por clase, obtenemos una co
 
 ### Evaluation results
 
-El conjunto de pruebas (10 000 imágenes) se evaluó utilizando el mejor modelo guardado (basado en la precisión de la validación). Se entrenaron dos modelos durante 20 y 60 épocas. A continuación se muestran las métricas de ambos.
-
-**20 epochs**
-
-![final_metrics_table_20_epochs](../../outs/exercise_05/final_metrics_table_20_epochs.png)
+El conjunto de pruebas (10 000 imágenes) se evaluó utilizando el mejor modelo guardado (basado en la precisión de la validación). Se entrenaron dos modelos durante 60 y 200 épocas. A continuación se muestran las métricas de ambos.
 
 **60 epochs**
 
-![](../../outs/exercise_05/final_metrics_table_50_epochs.png)![final_metrics_table_50_epochs](../../outs/exercise_05/final_metrics_table_60_epochs.png)
+![final_metrics_table_60_epochs](../../outs/exercise_05/final_metrics_table_60_epochs.png)
+
+**200 epochs**
+
+![](../../outs/exercise_05/final_metrics_table_50_epochs.png)![final_metrics_table_200_epochs](../../outs/exercise_05/final_metrics_table_200_epochs.png)
 
 Las matrices de confusión proporcionan información sobre qué clases se confunden.
 
-**20 epochs**
-
-![Confusion Matrix 50 epochs](../../outs/exercise_05/confusion_matrix_20_epochs.png)
-
 **60 epochs**
 
-![Confusion Matrix 50 epochs](../../outs/exercise_05/confusion_matrix_60_epochs.png)
+![Confusion Matrix 60 epochs](../../outs/exercise_05/confusion_matrix_60_epochs.png)
 
-Los archivos CSV detallados contienen precision, recall, F1‑score y el soporte por clase, además de los promedios macro/ponderados.
+**200 epochs**
+
+![Confusion Matrix 50 epochs](../../outs/exercise_05/confusion_matrix_200_epochs.png)
+
+Los archivos CSV detallados (que se encuentran en la carpeta de /outs/exercise_05) contienen precision, recall, F1‑score y el soporte por clase, además de los promedios macro/ponderados.
+
+Tras 200 épocas, el modelo alcanzó un Overall Accuracy del 62.45% (6245 aciertos sobre 10000 en el test set).
 
 ### Discussion of the results
 
 ##### How the model solves the problem?
 
-* El modelo aprende un límite de decisión lineal en el espacio de alta dimensión de píxeles aplanados, tras transformaciones no lineales. Se basa en estadísticas globales de color y textura, pero no puede aprovechar las jerarquías espaciales locales, lo que limita su rendimiento.
-* **Overall accuracy** (20 epochs: 55.18% vs 60 epochs: 61.61%): La mejora con más épocas demuestra que el modelo se beneficia del entrenamiento prolongado y de la programación de la tasa de aprendizaje.
-* **Clases mejor reconocidas** (F1 > 0.66@60 epochs vs 0.55 < F1 <0.6@20 epochs ): Como es el caso de Automobile, ship, frog, horse.
+* La precisión máxima ha subido apenas un ~1% respecto a las 60 épocas. Esto confirma que el límite de una red densa en CIFAR-10 ronda los sesentas. Al aplanar la imagen (3072 dimensiones), se destruye la jerarquía espacial, obligando al modelo a memorizar distribuciones globales de intensidad y color.
+* **Clases mejor reconocidas:**  `ship` (F1: 0.733),  `automobile` (F1: 0.731) y `horse` (0.705). Esto puede deberse a que dichas imagenes cuentan con fondos o colores muy distintivos (azul para barcos, asfalto gris para autos).
+* **Clases peor reconocidas:** `cat` (F1: 0.445), `bird` (F1: 0.498), `dog` (F1: 0.542).
+* **Patrones de confusión críticos:** La matriz de confusión de 200 épocas muestra que el modelo no percibe bien la diferencia entre gatos y perros (predijo perro cuando era gato 196 veces, y predijo gato cuando era perro 181 veces). También confunde mucho aves con ciervos (136 veces) y aves con ranas (92 veces). Al no contar con filtros convolucionales le impide detectar caracteristicas más complejas y definidas como "orejas", "picos" o "ruedas"; solo ve matrices de píxeles.
 
 ##### **Is there overfitting, underfitting or any other issues?**
 
-* La precisión de la validación y las pruebas es similar (≈ 61 % después de 60 épocas), y las curvas de **Loss** no divergen. La regularización (dropout, weight decay) evita con éxito el overfitting. Sin embargo, el modelo sigue sin ajustarse lo suficiente a la distribución real de los datos: una arquitectura más potente (CNN) lograría una precisión mucho mayor (>80 %). La capacidad de una MLP es limitada para esta tarea.
-* **Clases peor reconocidas** (F1 ~ 0.44–0.53@60 epochs vs F1 ~ 0.38–0.45@60 epochs): Como en los casos de Bird, cat, deer. Esto es previsible, para clases con características visuales similares (por ejemplo, gato frente a perro, ciervo frente a caballo) son más difíciles de distinguir con una red totalmente conectada que ignora la estructura espacial.
-* Con respecto a los **Patrones de Confusión**, El gato se confunde a menudo con el perro y el ciervo, el pájaro se confunde con el avión y la rana, El ciervo se confunde con el caballo y el perro. Estas clasificaciones erróneas se ajustan a similitudes semánticas.
+La precisión de la validación y las pruebas es similar (≈ 61 % después de 60 épocas), y las curvas de **Loss** no divergen. La regularización (dropout, weight decay) evita con éxito el overfitting. Sin embargo, el modelo sigue sin ajustarse lo suficiente a la distribución real de los datos: una arquitectura más potente (CNN) lograría una precisión mucho mayor (>80 %). La capacidad de una MLP es limitada para esta tarea.
 
 ##### How can we improve the model?
 
 * Utilizar capas convolucionales para capturar patrones espaciales.
-* Aumentar el tamaño del modelo (más unidades ocultas, capas más profundas), pero esto puede requerir una regularización aún más fuerte.
 * Aplicar un aumento de datos más agresivo (rotación, fluctuación de color, etc.).
 * Utilizar métodos de conjunto.
+* Pasar a un modelo con capas convolucionales o arquitecturas aún más complejas.
 
 ##### How this model will generalize to new data?**
 
@@ -239,12 +240,13 @@ El modelo alcanza una precisión de aproximadamente el 61 % en el conjunto de pr
 
 El modelo se mejoró de forma iterativa ajustando los hiperparámetros y la arquitectura. La siguiente tabla resume los cambios clave y su impacto en la precisión de la validación.
 
-| Iteración | Capas Ocultas    | Dropout  | BatchNorm | Weight decay | LR scheduler      | Val acc (%) | Motivo                         |
-| ---------- | ---------------- | -------- | --------- | ------------ | ----------------- | ----------- | ------------------------------ |
-| 1          | [512, 256]       | None     | No        | 0            | None              | ~48         | Red muy pequeña               |
-| 2          | [1024, 512, 256] | 0.2, 0.1 | Yes       | 1e-3         | None              | ~53         | Mayor capacidad y estabilidad  |
-| 3          | [1024, 512, 256] | 0.3, 0.2 | Yes       | 1e-2         | None              | ~56         | Mayor capacidad y estabilidad  |
-| 4 (final)  | [1024, 512, 256] | 0.3, 0.2 | Yes       | 1e-2         | ReduceLROnPlateau | ~61         | Refinamiento de pesos al final |
+| Iteración | Capas Ocultas    | Dropout  | BatchNorm | Weight decay | LR scheduler      | Val acc (%) | Motivo                                                                              |
+| ---------- | ---------------- | -------- | --------- | ------------ | ----------------- | ----------- | ----------------------------------------------------------------------------------- |
+| 1          | [512, 256]       | None     | No        | 0            | None              | ~48         | 20 épocas  - Red muy pequeña                                                    |
+| 2          | [1024, 512, 256] | 0.2, 0.1 | Sí       | 1e-3         | None              | ~53         | 20 épocas  - Mayor capacidad y estabilidad                                        |
+| 3          | [1024, 512, 256] | 0.3, 0.2 | Sí       | 1e-2         | None              | ~56         | 60 épocas  - Mayor capacidad y estabilidad                                       |
+| 4          | [1024, 512, 256] | 0.3, 0.2 | Sí       | 1e-2         | ReduceLROnPlateau | ~61         | 60 épocas  - Refinamiento de pesos al final                                       |
+| 5 (final) | [1024, 512, 256] | 0.3, 0.2 | Sí       | 1e-2         | ReduceLROnPlateau | ~62.4%      | Entrenar 200 épocas para encontrar el techo de capacidad representacional del MLP. |
 
 Las principales mejoras provinieron de:
 
@@ -260,22 +262,26 @@ Pleaser answer the following questions. Include graphs if necessary. Store the g
 
 El modelo anterior era una red neuronal convolucional (CNN) diseñada para explotar la estructura espacial de las imágenes. En este modelo, el cual es una red totalmente conectada (FC), está compuesta por tres capas ocultas (1024 → 512 → 256) y activaciones ReLU, que utiliza BatchNormalization, dropout y weight decay. Las diferencias clave se resumen a continuación:
 
-| Aspecto                                   | Modelo Actual (FC)                                                                                                    | Modelo Anterior (CNN)                                                                                                                                                               |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Arquitectura**                    | Aplana imágenes de 3×32×32 en un vector de 3072‑D; procesado con capas densas.                                     | Utiliza tres bloques convolucionales con 32, 64 y 128 filtros, cada uno seguido de BatchNorm, ReLU, max-polling y dropout. Termina con un clasificador de 512 unidades.            |
-| **Cuenta de Parámetros**           | ~3.5 millones                                                                                                          | ~1.2 millones (más eficiente)                                                                                                                                                     |
-| **Extracción de Carácteristicas** | Aprende estadísticas globales de color/textura, ignora las relaciones espaciales.                                     | Aprende características locales jerárquicas (bordes → texturas → partes de objetos).                                                                                            |
-| **Regularización**                 | Dropout (0.3, 0.2), weight decay 1e‑2, batch norm.                                                                    | Dropout (0.2, 0.3, 0.4, 0.5 en clasificador), weight decay 1e‑2, batch norm.                                                                                                       |
-| **Training dynamics**               | La precisión de la validación se estabilizó en ~55‑60% después de 60 epochs; curvas de funciones Loss estables. | La precisión de la validación alcanzó**~85‑90%** después de 60 epochs; La función Loss disminuyó más rápido y fue menor.                                         |
-| **Test accuracy**                   | **61.6%** (modelo a 60‑epoch)                                                                                   | **~87%**                                                                                                                                                                     |
-| **F1‑score por clase**             | El más bajo para aves, gatos y ciervos (~0,44-0,53); el más alto para automóviles, barcos y ranas (~0,66-0,73).     | El más bajo para los gatos (0,744) y las aves (0,798); el más alto para los automóviles (0,938), los barcos (0,923) y los camiones (0,909). Todas las clases por encima de 0,74. |
-| **Patrones de confusión**          | Gran confusión entre pares semánticamente similares (gato↔perro, ciervo↔caballo).                                  | Confusion greatly reduced; remaining errors mainly between fine‑grained categories (e.g., cat still confused with dog, but far less).                                              |
-| **Vel. de inferencia**              | Ligeramente más rápido (sin convoluciones)                                                                         | Ligeramente más lento debido a las capas conv, pero sigue siendo eficiente.                                                                                                        |
+| Aspecto                                   | Modelo Actual (FC)                                                                                                   | Modelo Anterior (CNN)                                                                                                                                                                                             |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Arquitectura**                    | Aplana imágenes de 3×32×32 en un vector de 3072‑D; procesado con capas densas.                                    | Utiliza tres bloques convolucionales con 32, 64 y 128 filtros, cada uno seguido de BatchNorm, ReLU, max-polling y dropout. Termina con un clasificador de 512 unidades.                                          |
+| **Extracción de Carácteristicas** | Aprende estadísticas globales de color/textura, ignora las relaciones espaciales.                                    | Aprende características locales jerárquicas (bordes → texturas → partes de objetos).                                                                                                                          |
+| **Regularización**                 | Dropout (0.3, 0.2), weight decay 1e‑2, batch norm.                                                                   | Dropout (0.2, 0.3, 0.4, 0.5 en clasificador), weight decay 1e‑2, batch norm.                                                                                                                                     |
+| **Training dynamics**               | La precisión de la validación se estabilizó en ~61-62% después de 75 epochs; curvas de funciones Loss estables. | La precisión de la validación alcanzó**~85‑90%** después de 60 epochs; La función Loss disminuyó más rápido y fue menor.                                                                       |
+| **Test accuracy**                   | **61.6%** (modelo a 60‑epoch) - 62.45% (modelo a 200-epoch)                                                   | **~87%** (modelo a 60‑epoch)                                                                                                                                                                              |
+| **F1‑score por clase**             | El más bajo para aves, gatos y ciervos (~0,44-0,53); el más alto para automóviles, barcos y ranas (~0,66-0,73).    | El más bajo para los gatos (0,744) y las aves (0,798); el más alto para los automóviles (0,938), los barcos (0,923) y los camiones (0,909). Todas las clases por encima de 0,74.                               |
+| **Patrones de confusión**          | Gran confusión entre pares semánticamente similares (gato↔perro, ciervo↔caballo).                                 | Confusion reducida de una manera mayor vs FC; los errores restantes se dan principalmente entre categorías muy específicas (por ejemplo, sigue confundiendo el gato con el perro, pero en mucha menor medida). |
 
 La CNN supera ampliamente al modelo FC porque conserva la estructura 2D de las imágenes y aprende características invariables a la traducción mediante convolución y agrupación. También se beneficia de un diseño más eficiente en cuanto a parámetros, lo que reduce el sobreajuste y permite capturar patrones más significativos.
 
 ### Does the model generalizes well to new data?
 
-La CNN ha aprendido características generalizables: clasifica correctamente la mayoría de las imágenes aunque nunca haya visto las muestras de prueba exactas. Los errores restantes se encuentran principalmente en clases que comparten características visuales (por ejemplo, gatos y perros, pájaros y aviones), lo cual es de esperar dada la ambigüedad inherente al conjunto de datos.
+Al ver las gráficas y resultados, algunas conclusiones a las que llegamos son:
 
-Por el contrario, el modelo FC generalizó mal (61 % de precisión en la prueba) porque no pudo explotar las jerarquías espaciales y, en esencia, memorizó correlaciones de color/textura que no se transfieren bien. La CNN, al aprender patrones locales, alcanza un nivel de rendimiento cercano a los primeros resultados del aprendizaje profundo en CIFAR-10 y sería adecuada para muchas aplicaciones prácticas en las que es aceptable.
+El número de épocas para llegar al techo maximo del modelo implementado con MLP fue mayor que en el caso  del modelo que se probó con el modelo con capas convolucionales. Para este caso, el resultado más valioso de entrenar a 200 épocas no fue ganar un 0.8% más de accuracy, sino demostrar empíricamente el límite arquitectónico de un MLP para visión por computador.
+
+Si miramos la gráfica de Loss a 100 epochs o 200 epochs, se comporta de buena forma desde el punto de vista del manejo de la varianza. En modelos sin capas convolucionales, es facilísimo que el Train Loss se vaya a 0 y el Val Loss crezca estrepitosamente (memorización). Gracias a la combinación de diferentes métodos de regularización y data augmentation, se obligó al modelo a generalizar lo máximo posible, logrando que las curvas de Train y Val vayan casi pegadas. Mostrando que para este modelo el problema es que queda limitado a un caso de underfitting.
+
+Un aspecto que se pudo recapacitar para proximas implementaciones, viene de observar que el gráfico de Accuracy muestra que después de la época ~80, la curva es una línea horizontal ruidosa donde se desperdiciado el 60% del tiempo de cómputo (modelo 200 épocas). Esto nos enseña que para futuros entrenamientos, debemos implementar un mecanismo de Early Stopping (parada temprana). Si el Val Loss no mejora en unos 10-15 épocas, deberíamos detener el bucle para ahorrar GPU/CPU.
+
+Al comparar la tabla de F1-scores de este modelo (donde el gato tiene un valor tan bajo como 0.445) con la teoría que estudiamos sobre Redes Neuronales Convolucionales y la F1-scores del CNN del ejercicio 4, la transición es obligatoria. El MLP puede confundir camiones con automóviles porque ambos son "masas grises o metálicas sobre asfalto negro". En el modelo CNN pudimos usar pooling y filtros locales para buscar características espaciales.
