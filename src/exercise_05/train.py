@@ -12,7 +12,7 @@ from tqdm import tqdm
 from .dataset import CIFAR10Dataset
 from .model import FullyConnectedClassifier
 
-num_epochs = 60  # Clasificación requiere menos épocas con buen LR que la regresión simple
+num_epochs = 200  # Clasificación requiere menos épocas con buen LR que la regresión simple
 
 
 def get_device(force: str = "auto") -> torch.device:
